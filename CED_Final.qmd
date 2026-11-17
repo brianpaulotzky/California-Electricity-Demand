@@ -119,9 +119,9 @@ ca_ts |>
 
 ```{r ETS Models}
 
-# 1. Create Train and test sets   - REUSABLE -
-train <- ca_ts |> filter(year >= 2020, year <= 2044)
-test  <- ca_ts |> filter(year >= 2045, year <= 2050)
+# 1. Create Train and test sets
+train_ets <- ca_ts |> filter(year >= 2020, year <= 2044)
+test_ets  <- ca_ts |> filter(year >= 2045, year <= 2050)
 
 # 2. Fit ETS models
 
@@ -130,11 +130,11 @@ test  <- ca_ts |> filter(year >= 2045, year <= 2050)
 ```{r TSLM Models Fit, Forecast, and Plot}
 
 # 1. Create Train and test sets   - REUSABLE -
-train <- ca_ts |> filter(year >= 2020, year <= 2044)
-test  <- ca_ts |> filter(year >= 2045, year <= 2050)
+train_tslm <- ca_ts |> filter(year >= 2020, year <= 2044)
+test_tslm  <- ca_ts |> filter(year >= 2045, year <= 2050)
 
 # 2. Fit both TSLM models
-ca_tslm_fit <- train |>
+ca_tslm_fit <- train_tslm |>
   model(
     linear_tslm = TSLM(TWh ~ trend()),
     log_linear_tslm = TSLM(log(TWh) ~ trend())
@@ -142,7 +142,7 @@ ca_tslm_fit <- train |>
 
 # 3. Forecast 2045–2050
 ca_fc <- ca_tslm_fit |>
-  forecast(new_data = test)
+  forecast(new_data = test_tslm)
 
 # 4. Test accuracy
 ca_fc |>
