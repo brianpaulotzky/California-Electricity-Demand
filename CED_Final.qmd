@@ -40,8 +40,6 @@ ca_ts
 ```{r EDA}
 
 # 1. Data overview
-
-#glimpse(ca_ts)
 summary(ca_ts)
 
 # 2. Missing values and duplicates
@@ -87,26 +85,33 @@ ca_ts |>
     y = "Frequency"
   )
 
-# 7. Autocorrelation
+# 7. Original series ACF and PACF
 ca_ts |>
-  ACF(TWh) |>
-  autoplot() +
-  labs(title = "ACF of Electricity Demand")
+  gg_tsdisplay(TWh, plot_type = "partial") +
+  labs(title = "Original Series: ACF and PACF")
 
-# 8. Differenced series
-ca_ts |>
-  autoplot(difference(TWh)) +
+# 8. First-differenced series
+ca_diff <- ca_ts |>
+  mutate(diff_TWh = difference(TWh))
+
+ca_diff |>
+  autoplot(diff_TWh) +
   labs(
     title = "First-Differenced Electricity Demand",
     x = "Year",
     y = "Change in Demand (TWh)"
   )
 
-# 9. Stationarity assessment
+# 9. Differenced series ACF and PACF
+ca_diff |>
+  gg_tsdisplay(diff_TWh, plot_type = "partial") +
+  labs(title = "Differenced Series: ACF and PACF")
+
+# 10. Stationarity assessment
 ca_ts |>
   features(TWh, unitroot_kpss)
 
-# 10. Recommended differences
+# 11. Recommended differences
 ca_ts |>
   features(TWh, unitroot_ndiffs)
 
