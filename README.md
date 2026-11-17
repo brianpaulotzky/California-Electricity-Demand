@@ -1,5 +1,6 @@
 # California-Electricity-Demand
 ## Time-series Forecasting on California Electricity Demands
+### Nessa Jafari, Guillermo Valencia, and Brian Paulotzky
 
 ## Background
 California's electricity demand is projected to more than double between 2020 and 2050 as buildings and vehicles switch from gas to electricity. Our project forecasts that demand using the Sup3rLoad dataset, a U.S. Department of Energy dataset produced by Evolved Energy Research.
