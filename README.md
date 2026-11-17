@@ -20,3 +20,7 @@ Overall, the team came to some different conclusions based upon the models that 
 
 The Log-linear TSLM performed best for TSLM models at an AICc of -229 and the ARIMA had an RMSE of 4.7 TwH thus getting extremely close to nominal values for errors.
 
+<img width="1220" height="754" alt="000028" src="https://github.com/user-attachments/assets/90ecd14f-a4fa-4470-b83f-3497e51c8c42" />
+
+<img width="1220" height="754" alt="00002e" src="https://github.com/user-attachments/assets/1930d0a3-b237-43db-b598-9b3d324ef5f1" />
+
