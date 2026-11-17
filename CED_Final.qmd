@@ -1,0 +1,116 @@
+---
+title: "California Electricity Demand"
+authors: Nessa Jafari, Guillermo Valencia, Brian Paulotzky
+format: pdf
+editor: visual
+---
+
+# California Electricity Demand 2020 - 2050
+
+```{r imports}
+#| echo: false
+#| message: false
+library(tidyverse)
+library(fpp3)
+library(scales)
+```
+
+## General Data Import
+
+```{r datasets into CA tsibble}
+energy_data <- read.csv("../data/Energy.csv")
+
+# Aggregate total VALUE by state and year across all subsectors and technologies
+ca_energy <- energy_data |>
+  group_by(state = "California", year) |>
+  summarise(total_value = sum(VALUE, na.rm = TRUE), .groups = "drop")
+
+# Convert to a tsibble with 'year' as index and 'state' as the key
+ca_ts <- ca_energy |>
+  as_tsibble(index = year, key = state)
+
+# Convert total value to TWh and create new "TWh" Column
+ca_ts <- ca_ts |>
+  mutate(TWh = total_value / 3412142)
+
+# Verify the tsibble structure
+ca_ts
+```
+
+```{r EDA}
+
+```
+
+```{r ETS Models}
+
+# 1. Create Train and test sets   - REUSABLE -
+train <- ca_ts |> filter(year >= 2020, year <= 2044)
+test  <- ca_ts |> filter(year >= 2045, year <= 2050)
+
+# 2. Fit ETS models
+
+```
+
+```{r TSLM Models Fit, Forecast, and Plot}
+
+# 1. Create Train and test sets   - REUSABLE -
+train <- ca_ts |> filter(year >= 2020, year <= 2044)
+test  <- ca_ts |> filter(year >= 2045, year <= 2050)
+
+# 2. Fit both TSLM models
+ca_tslm_fit <- train |>
+  model(
+    linear_tslm = TSLM(TWh ~ trend()),
+    log_linear_tslm = TSLM(log(TWh) ~ trend())
+  )
+
+# 3. Forecast 2045–2050
+ca_fc <- ca_tslm_fit |>
+  forecast(new_data = test)
+
+# 4. Test accuracy
+ca_fc |>
+  accuracy(ca_ts) |>
+  select(.model, RMSE, MAE, MAPE) |>
+  arrange(RMSE)
+
+# 5. Plot forecasts
+ca_fc |>
+  autoplot(ca_ts, level = 95) +
+  facet_wrap(~ .model, ncol = 2) +
+  labs(
+    title = "CA Energy Demand: Linear vs Log-linear TSLM",
+    x = "Year",
+    y = "Total Energy Value in TWh"
+  ) +
+  theme(legend.position = "none")
+```
+
+```{r}
+# Rolling-origin cross-validation
+ca_cv <- ca_ts |>
+  stretch_tsibble(.init = nrow(ca_ts) - 10, .step = 1) |>
+  model(
+    linear_tslm = TSLM(TWh ~ trend()),
+    log_linear_tslm = TSLM(log(TWh) ~ trend())
+  ) |>
+  forecast(h = 5)
+
+# Compare forecast accuracy
+ca_cv |>
+  accuracy(ca_ts) |>
+  select(.model, RMSE, MAE, MAPE) |>
+  arrange(RMSE)
+```
+
+```{r TSLM Residuals}
+ca_fit |>
+  select(log_linear_tslm) |>
+  gg_tsresiduals()
+```
+
+```{r LB}
+ca_fit |>
+  augment() |>
+  features(.innov, ljung_box, lag = 5, dof = 2)
+```
