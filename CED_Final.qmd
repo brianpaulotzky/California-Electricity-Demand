@@ -39,6 +39,77 @@ ca_ts
 
 ```{r EDA}
 
+# 1. Data overview
+
+#glimpse(ca_ts)
+summary(ca_ts)
+
+# 2. Missing values and duplicates
+ca_ts |>
+  summarise(
+    missing = sum(is.na(TWh)),
+    duplicates = n() - n_distinct(year)
+  )
+
+# 3. Descriptive statistics
+ca_ts |>
+  summarise(
+    Mean = mean(TWh, na.rm = TRUE),
+    Median = median(TWh, na.rm = TRUE)
+  )
+
+# 4. Historical electricity demand
+ca_ts |>
+  autoplot(TWh) +
+  labs(
+    title = "California Electricity Demand (2020–2050)",
+    x = "Year",
+    y = "Electricity Demand (TWh)"
+  )
+
+# 5. Annual growth rate
+ca_ts |>
+  mutate(growth = 100 * (TWh / lag(TWh) - 1)) |>
+  autoplot(growth) +
+  labs(
+    title = "Annual Electricity Demand Growth",
+    x = "Year",
+    y = "Annual Growth (%)"
+  )
+
+# 6. Distribution
+ca_ts |>
+  ggplot(aes(x = TWh)) +
+  geom_histogram(bins = 10) +
+  labs(
+    title = "Distribution of Electricity Demand",
+    x = "Demand (TWh)",
+    y = "Frequency"
+  )
+
+# 7. Autocorrelation
+ca_ts |>
+  ACF(TWh) |>
+  autoplot() +
+  labs(title = "ACF of Electricity Demand")
+
+# 8. Differenced series
+ca_ts |>
+  autoplot(difference(TWh)) +
+  labs(
+    title = "First-Differenced Electricity Demand",
+    x = "Year",
+    y = "Change in Demand (TWh)"
+  )
+
+# 9. Stationarity assessment
+ca_ts |>
+  features(TWh, unitroot_kpss)
+
+# 10. Recommended differences
+ca_ts |>
+  features(TWh, unitroot_ndiffs)
+
 ```
 
 ```{r ETS Models}
